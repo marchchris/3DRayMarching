@@ -4,9 +4,17 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <ctime>
+#include <cmath>
+#include <chrono>
 
-const int windowWidth = 800;
-const int windowHeight = 600;
+const float PI = 3.141592;
+
+const int windowWidth = 1920;
+const int windowHeight = 1080;
+
+using namespace std::chrono;
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -78,7 +86,9 @@ unsigned int createShaderProgram(const std::string& vertexShaderSource, const st
 }
 
 int main()
-{
+{   
+
+
     // Initialize GLFW
     if (!glfwInit())
     {
@@ -108,13 +118,6 @@ int main()
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
-    // Read shader source code from files
-    std::string vertexShaderSource = readShaderFile("vertex_shader.glsl");
-    std::string fragmentShaderSource = readShaderFile("fragment_shader.glsl");
-
-    // Create shader program
-    unsigned int shaderProgram = createShaderProgram(vertexShaderSource, fragmentShaderSource);
 
     // Set up vertex data and buffers and configure vertex attributes
     float vertices[] = {
@@ -150,11 +153,29 @@ int main()
     // Unbind VAO
     glBindVertexArray(0);
 
+    unsigned int shaderProgram = 0;
+
     // Render loop
+    
+    auto start_time = steady_clock::now();
+
     while (!glfwWindowShouldClose(window))
     {
         // Input
         processInput(window);
+
+        
+        // Read shader source code from files
+        std::string vertexShaderSource = readShaderFile("vertex_shader.glsl");
+        std::string fragmentShaderSource = readShaderFile("fragment_shader.glsl");
+
+        if (shaderProgram)
+        {
+            glDeleteProgram(shaderProgram);
+        }
+
+        // Create shader program
+        shaderProgram = createShaderProgram(vertexShaderSource, fragmentShaderSource);
 
         // Render
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -162,6 +183,17 @@ int main()
 
         // Draw the rectangle
         glUseProgram(shaderProgram);
+
+        GLint windowSizeUniform = glGetUniformLocation(shaderProgram, "windowSize");
+        glUniform2f(windowSizeUniform, windowWidth, windowHeight);
+
+        GLint timeUniform = glGetUniformLocation(shaderProgram, "time");
+        //std::time_t current_time = std::time(nullptr);
+        auto current_time = steady_clock::now();
+        auto elapsed_time = duration_cast<milliseconds>(current_time - start_time).count();
+
+        std::cout << "Current Power: " << ((elapsed_time / 1000.0) * 0.1) + 1.0 << "\n";
+        glUniform1f(timeUniform, elapsed_time);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
