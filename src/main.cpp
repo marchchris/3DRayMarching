@@ -10,8 +10,8 @@
 
 const float PI = 3.141592;
 
-const int windowWidth = 1920;
-const int windowHeight = 1080;
+const int windowWidth = 1280;
+const int windowHeight = 720;
 
 using namespace std::chrono;
 
