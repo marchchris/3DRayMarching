@@ -101,4 +101,6 @@ Download and set up GLFW from [glfw.org](https://www.glfw.org/).
 g++ -o mandelbulb main.cpp -lglfw -lGL -lGLEW
 ./mandelbulb
 ```
+## Download  
 
+You can download the latest release **[here](https://github.com/marchchris/3DRayMarching/releases/latest)**.  
